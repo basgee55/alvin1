@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Paddock · Pitlane Glas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ───────────────────────────────────────────────
+   PADDOCK · MOTORSPORT GLASWERELD
+   Cinematic pitlane atmosfeer + glasmorfisme.
+   Diepzwart, neon-rood/oranje als remgloed, carbon fiber
+   in randen, condensed racing-typografie.
+   ─────────────────────────────────────────────── */
+
+:root {
+  --bg-deep:      #050505;
+  --bg-base:      #0a0a0a;
+  --carbon:       #14141a;
+  --glass-fill:   rgba(22, 22, 26, 0.45);
+  --glass-edge:   rgba(255, 255, 255, 0.06);
+  --glass-edge-2: rgba(255, 255, 255, 0.02);
+
+  --ember:        #FF5A1F;   /* brake glow */
+  --ember-hot:    #FF2D2D;   /* hottest */
+  --ember-soft:   rgba(255, 90, 31, 0.18);
+  --ember-track:  rgba(255, 90, 31, 0.35);
+
+  --ink:          #F5F5F7;
+  --ink-mute:     #9A9AA0;
+  --ink-faint:    #5A5A60;
+  --ink-data:     #C9C9CF;
+
+  --role-red:     #FF4A3D;
+  --role-green:   #66D69C;
+  --role-orange:  #FFAA1F;
+  --role-blue:    #5AB0FF;
+  --role-purple:  #BE8FFF;
+
+  --easing:       cubic-bezier(.16, 1, .3, 1);
+  --easing-over:  cubic-bezier(.34, 1.56, .64, 1);
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: var(--bg-deep); color: var(--ink); }
+body {
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Cinematic background ─────────────────────── */
+.bg-stage {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, #1a0d0a 0%, var(--bg-deep) 60%, #000 100%);
+}
+.bokeh {
+  position: absolute; border-radius: 50%;
+  filter: blur(28px);
+  opacity: 0.6;
+  animation: drift 14s ease-in-out infinite;
+}
+.bokeh.b1 { top: 20%; left: -10%;  width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,90,31,0.55), transparent 65%); animation-delay: 0s;   }
+.bokeh.b2 { top:  8%; right: -8%;  width: 180px; height: 180px; background: radial-gradient(circle, rgba(255,45,45,0.45), transparent 65%); animation-delay: -3s;  }
+.bokeh.b3 { bottom: 12%; left: 30%; width: 260px; height: 260px; background: radial-gradient(circle, rgba(255,170,31,0.28), transparent 65%); animation-delay: -7s; }
+.bokeh.b4 { top: 55%; right: -15%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(220,30,30,0.4), transparent 65%);  animation-delay: -10s; }
+@keyframes drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(20px,-12px) scale(1.06); }
+}
+.bg-streaks {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255,90,31,0.0) 0%, rgba(255,90,31,0.08) 40%, rgba(255,90,31,0.0) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.bg-streaks::before, .bg-streaks::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,90,31,.5), transparent);
+  filter: blur(2px);
+}
+.bg-streaks::before { top: 32%; transform: scaleX(1.4); }
+.bg-streaks::after  { top: 68%; transform: scaleX(1.4); }
+.bg-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 50%, rgba(0,0,0,0.8) 100%);
+}
+.bg-grain {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── App frame ────────────────────────────────── */
+.app {
+  position: relative; z-index: 1;
+  max-width: 430px; margin: 0 auto;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+
+/* ── Top nav strip ────────────────────────────── */
+.topnav {
+  position: sticky; top: 0; z-index: 30;
+  padding: env(safe-area-inset-top) 0 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.55) 80%, transparent),
+    rgba(0,0,0,0.4);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--glass-edge);
+}
+.topnav-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px 8px;
+}
+.brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 18px; letter-spacing: 0.16em;
+}
+.brand .dot {
+  display: inline-block; width: 6px; height: 6px; margin: 0 2px 2px 0;
+  border-radius: 50%; background: var(--ember-hot);
+  box-shadow: 0 0 8px var(--ember-hot), 0 0 16px var(--ember-hot);
+  vertical-align: middle;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.4; } }
+.brand .v { color: var(--ink-mute); font-weight: 600; letter-spacing: 0.12em; font-size: 11px; margin-left: 6px; }
+.live-stamp {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ink-mute); letter-spacing: 0.08em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.live-stamp::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--role-green); box-shadow: 0 0 8px var(--role-green);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.race-rail {
+  display: flex; gap: 7px; padding: 4px 18px 12px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.race-rail::-webkit-scrollbar { display: none; }
+.race-chip {
+  flex: 0 0 auto;
+  padding: 7px 11px; border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-edge);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  font-size: 11px; line-height: 1;
+  transition: all .25s var(--easing);
+}
+.race-chip.onsite { border-color: rgba(255,255,255,0.22); color: var(--ink); }
+.race-chip.away { opacity: 0.4; }
+.race-chip.current {
+  background: linear-gradient(135deg, var(--ember), var(--ember-hot));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 0 16px var(--ember-track), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* ── Section tabs ─────────────────────────────── */
+.tabs {
+  display: flex; padding: 0 14px 0;
+  gap: 4px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-edge);
+  position: sticky; top: 0; z-index: 25;
+}
+.tab {
+  flex: 1; text-align: center;
+  padding: 12px 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; font-size: 13px; letter-spacing: 0.16em;
+  color: var(--ink-mute); text-transform: uppercase;
+  cursor: pointer; position: relative;
+  transition: color .2s var(--easing);
+  border: 0; background: transparent;
+}
+.tab.active { color: var(--ink); }
+.tab .underline {
+  position: absolute; bottom: -1px; left: 18%; right: 18%;
+  height: 2px; background: var(--ember);
+  border-radius: 1px;
+  box-shadow: 0 0 12px var(--ember), 0 0 2px var(--ember-hot);
+  opacity: 0; transform: scaleX(0.4);
+  transition: opacity .25s var(--easing), transform .25s var(--easing);
+}
+.tab.active .underline { opacity: 1; transform: scaleX(1); }
+
+/* ── Content ──────────────────────────────────── */
+.content {
+  flex: 1;
+  padding: 16px 14px calc(36px + env(safe-area-inset-bottom));
+  display: grid; gap: 12px;
+}
+.tab-page { display: contents; }
+.tab-page[hidden] { display: none; }
+
+/* ── Glass block (basis) ──────────────────────── */
+.block {
+  position: relative;
+  background: var(--glass-fill);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 24px 48px rgba(0,0,0,0.4);
+  overflow: hidden;
+  /* visible by default; opt-in entry animation respects reduced-motion */
+}
+@media (prefers-reduced-motion: no-preference) {
+  .block {
+    opacity: 0; transform: translateY(14px);
+    animation: enter 0.7s var(--easing-over) forwards;
+  }
+}
+.tab-page:not([hidden]) .block:nth-child(1) { animation-delay: 0.05s; }
+.tab-page:not([hidden]) .block:nth-child(2) { animation-delay: 0.12s; }
+.tab-page:not([hidden]) .block:nth-child(3) { animation-delay: 0.19s; }
+.tab-page:not([hidden]) .block:nth-child(4) { animation-delay: 0.26s; }
+.tab-page:not([hidden]) .block:nth-child(5) { animation-delay: 0.33s; }
+.tab-page:not([hidden]) .block:nth-child(6) { animation-delay: 0.40s; }
+@keyframes enter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Carbon fiber edge — subtle weave near top */
+.block::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background:
+    repeating-linear-gradient( 45deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+.block::after {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent 60%);
+}
+
+.block-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+}
+.block-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.block-label .mark {
+  display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ember); margin-right: 8px; vertical-align: middle;
+  box-shadow: 0 0 6px var(--ember);
+}
+.block-action {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.08em;
+  color: var(--ember);
+  text-transform: lowercase;
+  background: transparent; border: 0; cursor: pointer;
+  padding: 4px 0;
+}
+.block-action:hover { text-shadow: 0 0 8px var(--ember); }
+
+/* ── Race block ───────────────────────────────── */
+.race-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 44px;
+  letter-spacing: -0.01em; line-height: 0.95;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #fff 30%, #B0B0B5 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.race-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink-mute);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-top: 6px;
+}
+.race-meta .sep { color: var(--ember); margin: 0 6px; }
+.next-strip {
+  margin-top: 16px; padding: 12px 14px;
+  background: rgba(255,90,31,0.08);
+  border: 1px solid var(--ember-soft);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; gap: 12px;
+}
+.next-strip .ind {
+  width: 3px; height: 30px; background: var(--ember);
+  border-radius: 2px;
+  box-shadow: 0 0 12px var(--ember);
+}
+.next-strip .label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--ember);
+}
+.next-strip .name {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600; font-size: 14px; margin-top: 1px;
+}
+.next-strip .when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink); text-align: right;
+}
+.next-strip .when small {
+  display: block; color: var(--ink-mute); font-size: 10px; margin-top: 2px;
+}
+
+/* ── Crew pills ───────────────────────────────── */
+.crew-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.crew-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 11px 7px 9px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-edge);
+  border-radius: 99px;
+  font-size: 12px; font-weight: 500;
+  font-family: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .25s var(--easing);
+}
+.crew-pill:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--ember-soft);
+  box-shadow: 0 0 16px var(--ember-soft);
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+.dot.red    { color: var(--role-red);    background: currentColor; }
+.dot.green  { color: var(--role-green);  background: currentColor; }
+.dot.orange { color: var(--role-orange); background: currentColor; }
+.dot.blue   { color: var(--role-blue);   background: currentColor; }
+.dot.purple { color: var(--role-purple); background: currentColor; }
+
+/* ── Weather ──────────────────────────────────── */
+.wx-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.wx-cell {
+  text-align: center;
+  padding: 14px 4px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+}
+.wx-day {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; letter-spacing: 0.12em;
+  font-size: 11px; color: var(--ink-mute);
+}
+.wx-temp {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 26px;
+  letter-spacing: -0.01em;
+  margin-top: 8px;
+}
+.wx-rain {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ink-mute); margin-top: 2px;
+}
+.wx-icon { margin: 8px auto 4px; height: 26px; display: flex; justify-content: center; }
+
+/* ── Flights ──────────────────────────────────── */
+.flight-row {
+  display: grid; grid-template-columns: 1fr auto;
+  padding: 12px 0; align-items: center;
+}
+.flight-row + .flight-row { border-top: 1px dashed rgba(255,255,255,0.08); }
+.flight-row .dir {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.22em;
+  color: var(--ember); text-transform: uppercase;
+}
+.flight-row .ports {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 22px; letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+.flight-row .ports .arrow { color: var(--ember); margin: 0 8px; opacity: 0.8; }
+.flight-row .day {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink-mute); margin-top: 4px;
+}
+.flight-row .time {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+}
+.flight-row .time .a { font-size: 18px; font-weight: 700; color: var(--ink); }
+.flight-row .time .b { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+
+/* ── Hotel ────────────────────────────────────── */
+.hotel-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 22px;
+  letter-spacing: 0.005em;
+}
+.hotel-addr {
+  font-size: 13px; color: var(--ink-mute); margin-top: 4px;
+}
+.hotel-actions { display: flex; gap: 8px; margin-top: 14px; }
+.btn-glass {
+  flex: 1; padding: 11px 14px;
+  border: 1px solid var(--glass-edge);
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--r-md);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; letter-spacing: 0.12em; font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all .22s var(--easing);
+}
+.btn-glass:hover {
+  border-color: var(--ember-soft);
+  box-shadow: 0 0 18px var(--ember-soft), inset 0 0 16px var(--ember-soft);
+}
+.btn-glass svg { color: var(--ember); }
+
+/* ── Weekoverzicht ───────────────────────────── */
+.week-row {
+  display: grid; grid-template-columns: 56px 1fr auto;
+  align-items: center; gap: 14px;
+  padding: 11px 0;
+}
+.week-row + .week-row { border-top: 1px dashed rgba(255,255,255,0.08); }
+.week-day {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 16px; letter-spacing: 0.05em;
+}
+.week-day small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400; color: var(--ink-faint); font-size: 10px;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.week-bar { display: flex; align-items: center; gap: 8px; }
+.week-bar .t {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink-data);
+}
+.week-bar .track {
+  flex: 1; height: 2px; background: var(--ember-track);
+  border-radius: 1px; box-shadow: 0 0 6px var(--ember-soft);
+}
+.week-set {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ember);
+  padding: 3px 7px; border: 1px solid var(--ember-soft); border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Schema tab ──────────────────────────────── */
+.sub-tabs {
+  display: flex; gap: 6px; margin-bottom: 4px;
+  padding: 4px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-edge); border-radius: var(--r-md);
+}
+.sub-tab {
+  flex: 1; padding: 9px 10px; border: 0; cursor: pointer;
+  background: transparent; color: var(--ink-mute);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; letter-spacing: 0.18em; font-size: 12px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  transition: all .22s var(--easing);
+}
+.sub-tab.active {
+  background: linear-gradient(180deg, rgba(255,90,31,0.18), rgba(255,90,31,0.08));
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ember-soft);
+}
+.day-card {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.day-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; cursor: pointer;
+  border: 0; background: transparent; width: 100%; text-align: left;
+}
+.day-head .d {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 11px; letter-spacing: 0.22em;
+  color: var(--ember); text-transform: uppercase;
+}
+.day-head .name {
+  flex: 1;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 18px; letter-spacing: 0.01em;
+  color: var(--ink);
+}
+.day-head .count {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink-faint); font-size: 11px;
+}
+.day-head .chev {
+  margin-left: 6px; color: var(--ember);
+  transition: transform .25s var(--easing);
+}
+.day-card.open .chev { transform: rotate(180deg); }
+.day-body { display: none; padding: 0 8px 10px; }
+.day-card.open .day-body { display: block; }
+.session-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid transparent;
+}
+.session-row.is-race {
+  border-color: rgba(255,45,45,0.5);
+  background: rgba(255,45,45,0.06);
+  box-shadow: inset 0 0 16px rgba(255,45,45,0.08);
+}
+.session-row .t {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink-mute); width: 92px; flex-shrink: 0;
+}
+.session-row .marker {
+  width: 4px; height: 18px; border-radius: 2px;
+  background: var(--ink-mute);
+  flex-shrink: 0;
+}
+.session-row[data-cls="m3"]    .marker { background: var(--role-purple); }
+.session-row[data-cls="m2"]    .marker { background: var(--role-blue); }
+.session-row[data-cls="mgp"]   .marker { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+.session-row[data-cls="race"]  .marker { background: var(--ember-hot); box-shadow: 0 0 12px var(--ember-hot); }
+.session-row[data-cls="set"]   .marker { background: var(--role-green); }
+.session-row .lbl {
+  flex: 1; font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: 0.01em;
+}
+
+/* ── Crew tab ─────────────────────────────────── */
+.crew-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; border-radius: var(--r-md);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-edge);
+  cursor: pointer;
+  transition: all .22s var(--easing);
+}
+.crew-row + .crew-row { margin-top: 6px; }
+.crew-row:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--ember-soft);
+}
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0.04em;
+  color: var(--ink);
+  border: 1px solid var(--glass-edge);
+  background: rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+.avatar.red    { box-shadow: inset 0 0 12px rgba(255,74,61,0.3), 0 0 12px rgba(255,74,61,0.15); }
+.avatar.green  { box-shadow: inset 0 0 12px rgba(102,214,156,0.25), 0 0 12px rgba(102,214,156,0.12); }
+.avatar.orange { box-shadow: inset 0 0 12px rgba(255,170,31,0.25), 0 0 12px rgba(255,170,31,0.12); }
+.avatar.blue   { box-shadow: inset 0 0 12px rgba(90,176,255,0.25), 0 0 12px rgba(90,176,255,0.12); }
+.avatar.purple { box-shadow: inset 0 0 12px rgba(190,143,255,0.25), 0 0 12px rgba(190,143,255,0.12); }
+.crew-row .info { flex: 1; }
+.crew-row .nm { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.01em; }
+.crew-row .ro { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-mute); margin-top: 1px; }
+.chev-r { color: var(--ink-faint); }
+
+/* ── Travel tab ───────────────────────────────── */
+.emergency-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+}
+.emergency-row + .emergency-row { margin-top: 6px; }
+.emergency-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 28px;
+  color: var(--ember-hot); width: 56px;
+  text-shadow: 0 0 18px rgba(255,45,45,0.5);
+  letter-spacing: 0.01em;
+}
+
+/* ── Calendar tab ─────────────────────────────── */
+.cal-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all .22s var(--easing);
+}
+.cal-row + .cal-row { margin-top: 5px; }
+.cal-row:hover { background: rgba(255,255,255,0.06); }
+.cal-row.done { opacity: 0.45; }
+.cal-row.current {
+  background: linear-gradient(135deg, rgba(255,90,31,0.18), rgba(255,45,45,0.10));
+  border-color: var(--ember-soft);
+  box-shadow: 0 0 24px var(--ember-soft);
+}
+.cal-row .rno {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 16px; letter-spacing: 0.04em;
+  color: var(--ink-mute); width: 32px;
+}
+.cal-row.current .rno { color: var(--ember); text-shadow: 0 0 12px var(--ember); }
+.cal-row .flag {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-edge);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.cal-row .info { flex: 1; }
+.cal-row .info .co { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.01em; }
+.cal-row .info .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.04em; margin-top: 2px; text-transform: uppercase; }
+.cal-row .badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.16em;
+  padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
+}
+.cal-row .badge.now { color: var(--ember); border: 1px solid var(--ember); }
+.cal-row .badge.os  { color: var(--ink-mute); border: 1px solid var(--glass-edge); }
+.cal-row .badge.win { color: var(--role-green); }
+
+/* ── Modal ────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: none; align-items: flex-end;
+  animation: fadeIn .25s var(--easing);
+}
+.modal-bg.show { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  width: 100%; max-width: 430px; margin: 0 auto;
+  background: linear-gradient(180deg, rgba(30,30,34,0.92), rgba(15,15,18,0.92));
+  backdrop-filter: blur(24px) saturate(180%);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  border-top: 1px solid var(--glass-edge);
+  padding: 18px 22px calc(36px + env(safe-area-inset-bottom));
+  transform: translateY(20px);
+  animation: slideUp .35s var(--easing-over) forwards;
+}
+@keyframes slideUp { to { transform: translateY(0); } }
+.modal .grabber {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 auto 18px;
+}
+.modal-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.modal-head .nm {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 22px;
+}
+.modal-head .ro { font-size: 13px; color: var(--ink-mute); margin-top: 2px; }
+.modal .row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 12px; border-radius: var(--r-md);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.modal .row:hover { background: rgba(255,90,31,0.08); }
+.modal .row .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,90,31,0.12);
+  color: var(--ember);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.modal .row .lbl { font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.1em; }
+.modal .row .vl  { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink); margin-top: 2px; }
+
+/* press feedback */
+.press { transition: transform .14s ease-out; }
+.press:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+
+<!-- Cinematic background -->
+<div class="bg-stage" aria-hidden="true">
+  <div class="bokeh b1"></div>
+  <div class="bokeh b2"></div>
+  <div class="bokeh b3"></div>
+  <div class="bokeh b4"></div>
+  <div class="bg-streaks"></div>
+  <div class="bg-vignette"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="app" id="app">
+
+  <header class="topnav">
+    <div class="topnav-head">
+      <div class="brand"><span class="dot"></span>PADDOCK<span class="v">PIT.LIVE</span></div>
+      <div class="live-stamp"><span id="liveClock">19:48</span></div>
+    </div>
+    <div class="race-rail" id="raceRail"></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="home"><span class="lbl">Home</span><span class="underline"></span></button>
+    <button class="tab" data-tab="schema"><span class="lbl">Schema</span><span class="underline"></span></button>
+    <button class="tab" data-tab="crew"><span class="lbl">Crew</span><span class="underline"></span></button>
+    <button class="tab" data-tab="travel"><span class="lbl">Travel</span><span class="underline"></span></button>
+    <button class="tab" data-tab="kal"><span class="lbl">Kal.</span><span class="underline"></span></button>
+  </nav>
+
+  <main class="content" id="content"></main>
+</div>
+
+<div class="modal-bg" id="modal"></div>
+
+<script>
+/* ────────────── DATA ────────────── */
+const SEASON = [
+  { r:1, code:'THA', country:'Thailand',    circuit:'Buriram',        date:'28 feb – 1 mrt', onsite:true,  done:true,  winner:'M. Márquez' },
+  { r:2, code:'ARG', country:'Argentinië',  circuit:'Termas',         date:'14 – 15 mrt',     onsite:false, done:true,  winner:'F. Bagnaia' },
+  { r:3, code:'USA', country:'Amerika',     circuit:'Austin',         date:'28 – 29 mrt',     onsite:false, done:true,  winner:'M. Márquez' },
+  { r:4, code:'ESP', country:'Spanje',      circuit:'Jerez',          date:'25 – 26 apr',     onsite:true,  done:true,  winner:'F. Quartararo' },
+  { r:5, code:'FRA', country:'Frankrijk',   circuit:'Le Mans',        date:'9 – 10 mei',      onsite:false, done:true,  winner:'M. Márquez' },
+  { r:6, code:'CAT', country:'Catalonië',   circuit:'Barcelona',      date:'16 – 17 mei',     onsite:true,  done:true,  winner:'P. Acosta' },
+  { r:7, code:'ITA', country:'Italië',      circuit:'Mugello',        date:'30 – 31 mei',     onsite:true,  current:true },
+  { r:8, code:'NED', country:'Nederland',   circuit:'Assen',          date:'27 – 28 jun',     onsite:true  },
+  { r:9, code:'GER', country:'Duitsland',   circuit:'Sachsenring',    date:'11 – 12 jul',     onsite:false },
+  { r:10,code:'CZE', country:'Tsjechië',    circuit:'Brno',           date:'18 – 19 jul',     onsite:true  },
+  { r:11,code:'AUT', country:'Oostenrijk',  circuit:'Red Bull Ring',  date:'15 – 16 aug',     onsite:true  },
+  { r:12,code:'HUN', country:'Hongarije',   circuit:'Balaton Park',   date:'22 – 23 aug',     onsite:false },
+  { r:13,code:'GBR', country:'Groot-Britt.',circuit:'Silverstone',    date:'5 – 6 sep',       onsite:true  },
+  { r:14,code:'ARA', country:'Aragón',      circuit:'MotorLand',      date:'12 – 13 sep',     onsite:false },
+  { r:15,code:'JPN', country:'Japan',       circuit:'Motegi',         date:'26 – 27 sep',     onsite:false },
+  { r:16,code:'INA', country:'Indonesië',   circuit:'Mandalika',      date:'3 – 4 okt',       onsite:false },
+  { r:17,code:'AUS', country:'Australië',   circuit:'Phillip Island', date:'17 – 18 okt',     onsite:false },
+  { r:18,code:'MAL', country:'Maleisië',    circuit:'Sepang',         date:'24 – 25 okt',     onsite:false },
+  { r:19,code:'POR', country:'Portugal',    circuit:'Portimão',       date:'7 – 8 nov',       onsite:true  },
+  { r:20,code:'SMR', country:'San Marino',  circuit:'Misano',         date:'14 – 15 nov',     onsite:true  },
+  { r:21,code:'QAT', country:'Qatar',       circuit:'Lusail',         date:'21 – 22 nov',     onsite:true  },
+  { r:22,code:'VAL', country:'Valencia',    circuit:'Ricardo Tormo',  date:'28 – 29 nov',     onsite:true  },
+];
+const CURRENT = SEASON.find(r => r.current);
+const CREW = [
+  { id:'rob',    name:'Rob van Gameren',  role:'Presentator',    color:'orange', phone:'+31 6 1234 5678', email:'rob@example.tv',     ini:'RG' },
+  { id:'wilco',  name:'Wilco Zeelenberg', role:'Analist',        color:'orange', phone:'+31 6 2345 6789', email:'wilco@example.tv',   ini:'WZ' },
+  { id:'frank',  name:'Frank Weeink',     role:'Commentator',    color:'green',  phone:'+31 6 3456 7890', email:'frank@example.tv',   ini:'FW' },
+  { id:'barry',  name:'Barry Veneman',    role:'Co-commentator', color:'green',  phone:'+31 6 4567 8901', email:'barry@example.tv',   ini:'BV' },
+  { id:'alvin',  name:'Alvin van Wunnik', role:'Pitreporter',    color:'red',    phone:'+31 6 5678 9012', email:'alvin@example.tv',   ini:'AW' },
+  { id:'freek',  name:'Freek van Pelt',   role:'Regie',          color:'blue',   phone:'+31 6 6789 0123', email:'freek@example.tv',   ini:'FP' },
+  { id:'valerio',name:'Valerio Zeno',     role:'Gast',           color:'purple', phone:'+31 6 7890 1234', email:'valerio@example.tv', ini:'VZ' },
+];
+const WEATHER = [
+  { day:'Do', date:'28', icon:'sun',     tempH:27, rain:0,  wind:8 },
+  { day:'Vr', date:'29', icon:'partly',  tempH:26, rain:10, wind:12 },
+  { day:'Za', date:'30', icon:'cloudy',  tempH:24, rain:30, wind:16 },
+  { day:'Zo', date:'31', icon:'rain',    tempH:22, rain:70, wind:18 },
+];
+const FLIGHTS = [
+  { dir:'out', no:'KL1655', day:'Wo 27 mei', dep:'17:15', arr:'19:30', from:'AMS', to:'FLR', term:'T2', plane:'E190' },
+  { dir:'in',  no:'KL1652', day:'Ma 1 jun',  dep:'11:45', arr:'14:00', from:'FLR', to:'AMS', term:'T1', plane:'E190' },
+];
+const HOTEL = {
+  name:'The Social Hub Florence Belfiore',
+  addr:'Viale Belfiore 55, Firenze',
+  drive:'1u 5min naar circuit',
+};
+const SCHEDULE = [
+  { day:'Donderdag 28', items:[
+    { time:'14:00 – 15:00', label:'Persconferentie', cls:'press' },
+    { time:'17:00 – 18:00', label:'Track walk',      cls:'track' },
+  ]},
+  { day:'Vrijdag 29', items:[
+    { time:'08:40 – 09:20', label:'Moto3 Practice 1',   cls:'m3' },
+    { time:'09:35 – 10:15', label:'Moto2 Practice 1',   cls:'m2' },
+    { time:'10:45 – 11:30', label:'MotoGP Practice 1',  cls:'mgp' },
+    { time:'13:00 – 13:40', label:'Moto3 Practice 2',   cls:'m3' },
+    { time:'13:55 – 14:35', label:'Moto2 Practice 2',   cls:'m2' },
+    { time:'15:00 – 16:00', label:'MotoGP Practice 2',  cls:'mgp' },
+    { time:'16:30 – 16:50', label:'Uitzending einde',   cls:'set' },
+  ]},
+  { day:'Zaterdag 30', items:[
+    { time:'10:10 – 10:40', label:'MotoGP Practice 3',  cls:'mgp' },
+    { time:'10:50 – 11:30', label:'MotoGP Qualifying',  cls:'mgp' },
+    { time:'15:00 – 15:30', label:'Tissot Sprint',      cls:'race' },
+    { time:'16:00 – 16:20', label:'Uitzending einde',   cls:'set' },
+  ]},
+  { day:'Zondag 31', items:[
+    { time:'09:40 – 09:50', label:'Warm-up MotoGP',     cls:'mgp' },
+    { time:'11:00 – 11:25', label:'Moto3 Race',         cls:'race' },
+    { time:'12:15 – 12:55', label:'Moto2 Race',         cls:'m2' },
+    { time:'14:00 – 14:45', label:'MotoGP Grand Prix',  cls:'race' },
+    { time:'15:15 – 15:45', label:'Uitzending einde',   cls:'set' },
+  ]},
+];
+const WEEK = [
+  { day:'Do', date:28, start:'14:00', end:'18:00', set:'18:30' },
+  { day:'Vr', date:29, start:'08:40', end:'16:50', set:'16:50' },
+  { day:'Za', date:30, start:'08:40', end:'16:20', set:'16:20' },
+  { day:'Zo', date:31, start:'09:40', end:'15:45', set:'15:45' },
+];
+const NEXT_SESSION = { label:'MotoGP Practice 1', start:'Vr 10:45', in:'2d 14u' };
+const RENTAL = { provider:'Sunny Cars / Avis', ref:'09492159NL5', pickup:'Wo 27 mei 17:00', dropoff:'Ma 1 jun 11:00' };
+
+/* ────────────── ICONS ────────────── */
+const ICON = {
+  plane: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
+  pin:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>',
+  phone: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6a1 1 0 0 0-1.1.3l-2.2 2.2c-2.8-1.4-5.2-3.8-6.6-6.6l2.2-2.2a1 1 0 0 0 .3-1.1A11 11 0 0 1 8.5 4c0-.6-.4-1-1-1H4a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3.5c0-.5-.4-1-1-1z"/></svg>',
+  mail:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4l-8 5-8-5V6l8 5 8-5z"/></svg>',
+  whats: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm5.5 13.7c-.2.6-1.3 1.2-1.8 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-5-4.3-5.1-4.5-.1-.2-1.2-1.6-1.2-3 0-1.5.8-2.2 1-2.5.3-.3.6-.4.8-.4h.6c.2 0 .5 0 .7.5l1 2.3c.1.2.1.4 0 .6l-.4.4c-.1.2-.3.3-.1.6.2.3.7 1.2 1.6 1.9 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6 0l.8-1c.2-.2.4-.2.7-.1l2.1 1c.2.1.4.2.4.3.1.1.1.6-.1 1.2z"/></svg>',
+  chev:  '<svg width="10" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  down:  '<svg width="12" height="6" viewBox="0 0 12 6" fill="none"><path d="M1 1l5 4 5-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+function wxIcon(kind) {
+  const c = 'currentColor';
+  if (kind === 'sun') return `<svg width="26" height="26" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="${c}"/>${[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;return `<line x1="${12+Math.cos(r)*7.5}" y1="${12+Math.sin(r)*7.5}" x2="${12+Math.cos(r)*10}" y2="${12+Math.sin(r)*10}" stroke="${c}" stroke-width="1.7" stroke-linecap="round"/>`;}).join('')}</svg>`;
+  if (kind === 'partly') return `<svg width="26" height="26" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5" fill="${c}"/><path d="M8 17 a4 4 0 1 1 0-8 a4 4 0 0 1 3.5 2 a3 3 0 0 1 4 4 a3 3 0 0 1 -3 2 z" fill="${c}" opacity=".55" transform="translate(2 1)"/></svg>`;
+  if (kind === 'cloudy') return `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M6 17 a4 4 0 1 1 0-8 a4 4 0 0 1 3.5 2 a3 3 0 0 1 4 4 a3 3 0 0 1 -3 2 z" fill="${c}" opacity=".75" transform="translate(2 1)"/></svg>`;
+  if (kind === 'rain') return `<svg width="26" height="26" viewBox="0 0 24 24"><path d="M6 13 a4 4 0 1 1 0-8 a4 4 0 0 1 3.5 2 a3 3 0 0 1 4 4 a3 3 0 0 1 -3 2 z" fill="${c}" opacity=".75" transform="translate(2 1)"/><line x1="8" y1="17" x2="7" y2="20" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="17" x2="11" y2="20" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/><line x1="16" y1="17" x2="15" y2="20" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  return '';
+}
+
+/* ────────────── RENDER ────────────── */
+const $ = (q, el=document) => el.querySelector(q);
+const $$ = (q, el=document) => Array.from(el.querySelectorAll(q));
+
+// Race rail (top nav)
+function renderRaceRail() {
+  const upcoming = [...SEASON].slice(SEASON.indexOf(CURRENT) - 1, SEASON.indexOf(CURRENT) + 4);
+  $('#raceRail').innerHTML = upcoming.map(r => {
+    const cls = r.current ? 'current' : (r.onsite ? 'onsite' : 'away');
+    return `<div class="race-chip ${cls}">R${r.r} · ${r.code}</div>`;
+  }).join('');
+}
+
+// State
+let state = { tab: 'home', schedSub: 'weekend', travelSub: 'vlucht', openDay: 1 };
+
+// Home
+function renderHome() {
+  return `
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Huidig weekend</div>
+        <button class="block-action" data-go="schema">→ schema</button>
+      </div>
+      <div class="race-name">${CURRENT.country}</div>
+      <div class="race-meta">${CURRENT.circuit}<span class="sep">·</span>R${CURRENT.r}/22<span class="sep">·</span>${CURRENT.date}</div>
+      <div class="next-strip">
+        <div class="ind"></div>
+        <div style="flex:1">
+          <div class="label">Volgende sessie</div>
+          <div class="name">${NEXT_SESSION.label}</div>
+        </div>
+        <div class="when">${NEXT_SESSION.start.split(' ')[1]}<small>${NEXT_SESSION.start.split(' ')[0]}</small></div>
+      </div>
+    </article>
+
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Crew · onsite</div>
+        <button class="block-action" data-go="crew">${CREW.length} pax →</button>
+      </div>
+      <div class="crew-pills">
+        ${CREW.map(p => `
+          <button class="crew-pill press" data-crew="${p.id}">
+            <span class="dot ${p.color}"></span>
+            ${p.name.split(' ')[0]}
+          </button>
+        `).join('')}
+      </div>
+    </article>
+
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Weer · Mugello</div>
+      </div>
+      <div class="wx-grid">
+        ${WEATHER.map(w => `
+          <div class="wx-cell">
+            <div class="wx-day">${w.day.toUpperCase()} ${w.date}</div>
+            <div class="wx-icon" style="color:#FFB07F">${wxIcon(w.icon)}</div>
+            <div class="wx-temp">${w.tempH}°</div>
+            <div class="wx-rain">${w.rain}%</div>
+          </div>
+        `).join('')}
+      </div>
+    </article>
+
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Vluchten</div>
+        <button class="block-action" data-go="travel">→ travel</button>
+      </div>
+      ${FLIGHTS.map(f => `
+        <div class="flight-row">
+          <div>
+            <div class="dir">${f.dir === 'out' ? 'Heen' : 'Terug'}</div>
+            <div class="ports">${f.from}<span class="arrow">→</span>${f.to}</div>
+            <div class="day">${f.day.toUpperCase()} · ${f.no}</div>
+          </div>
+          <div class="time">
+            <div class="a">${f.dep}</div>
+            <div class="b">${f.arr}</div>
+          </div>
+        </div>
+      `).join('')}
+    </article>
+
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Hotel</div>
+      </div>
+      <div class="hotel-name">${HOTEL.name}</div>
+      <div class="hotel-addr">${HOTEL.addr}</div>
+      <div class="hotel-actions">
+        <button class="btn-glass press">${ICON.pin} Route</button>
+        <button class="btn-glass press">${ICON.phone} Bel hotel</button>
+      </div>
+    </article>
+
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Weekoverzicht</div>
+        <button class="block-action" data-go="schema">→ detail</button>
+      </div>
+      ${WEEK.map(w => `
+        <div class="week-row">
+          <div class="week-day">${w.day}<small>${w.date} mei</small></div>
+          <div class="week-bar">
+            <span class="t">${w.start}</span>
+            <span class="track"></span>
+            <span class="t">${w.end}</span>
+          </div>
+          <div class="week-set">SET ${w.set}</div>
+        </div>
+      `).join('')}
+    </article>
+  `;
+}
+
+// Schema
+function renderSchema() {
+  if (state.schedSub === 'draaiboek') {
+    const draai = [
+      { t:'13:30', l:'Studio open',         c:'var(--ink-mute)' },
+      { t:'13:55', l:'Aftiteling open',     c:'var(--role-green)' },
+      { t:'14:00', l:'MotoGP Grand Prix',   c:'var(--ember-hot)' },
+      { t:'14:45', l:'Reclameblok',         c:'var(--ink-faint)' },
+      { t:'14:55', l:'Podium · interviews', c:'var(--role-blue)' },
+      { t:'15:20', l:'Nabeschouwing',       c:'var(--role-purple)' },
+      { t:'15:45', l:'Afsluiting',          c:'var(--role-green)' },
+    ];
+    return `
+      <div class="sub-tabs">
+        <button class="sub-tab" data-sub="weekend">Weekend</button>
+        <button class="sub-tab active" data-sub="draaiboek">Draaiboek</button>
+      </div>
+      <article class="block" style="padding:8px 0">
+        ${draai.map(r => `
+          <div class="session-row" style="margin:0 8px 4px">
+            <div class="t">${r.t}</div>
+            <div class="marker" style="background:${r.c};box-shadow:0 0 8px ${r.c}"></div>
+            <div class="lbl">${r.l}</div>
+          </div>
+        `).join('')}
+      </article>
+    `;
+  }
+  return `
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="weekend">Weekend</button>
+      <button class="sub-tab" data-sub="draaiboek">Draaiboek</button>
+    </div>
+    ${SCHEDULE.map((d, i) => `
+      <div class="day-card ${i === state.openDay ? 'open' : ''}" data-day="${i}">
+        <button class="day-head press" data-day-toggle="${i}">
+          <span class="d">Dag ${i+1}</span>
+          <span class="name">${d.day}</span>
+          <span class="count">${d.items.length}</span>
+          <span class="chev">${ICON.down}</span>
+        </button>
+        <div class="day-body">
+          ${d.items.map(it => `
+            <div class="session-row ${it.cls==='race'?'is-race':''}" data-cls="${it.cls}">
+              <div class="t">${it.time}</div>
+              <div class="marker"></div>
+              <div class="lbl">${it.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// Crew
+function renderCrew() {
+  return `
+    <article class="block">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>R${CURRENT.r} · ${CURRENT.country}</div>
+        <span class="block-action" style="color:var(--ink-mute);pointer-events:none">${CREW.length} pax</span>
+      </div>
+      ${CREW.map(p => `
+        <div class="crew-row press" data-crew="${p.id}">
+          <div class="avatar ${p.color}">${p.ini}</div>
+          <div class="info">
+            <div class="nm">${p.name}</div>
+            <div class="ro"><span class="dot ${p.color}"></span> ${p.role}</div>
+          </div>
+          <span class="chev-r">${ICON.chev}</span>
+        </div>
+      `).join('')}
+    </article>
+  `;
+}
+
+// Travel
+function renderTravel() {
+  const tabs = `
+    <div class="sub-tabs">
+      ${['vlucht','auto','hotel','nood'].map(t => `
+        <button class="sub-tab ${state.travelSub === t ? 'active' : ''}" data-travel="${t}">${t}</button>
+      `).join('')}
+    </div>
+  `;
+  if (state.travelSub === 'vlucht') {
+    return tabs + FLIGHTS.map(f => `
+      <article class="block">
+        <div class="block-head">
+          <div class="block-label"><span class="mark"></span>${f.dir === 'out' ? 'Heen' : 'Terug'} · ${f.day}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div>
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:34px;letter-spacing:0.02em">${f.from}</div>
+            <div style="font-family:'JetBrains Mono';font-size:12px;color:var(--ink-mute);margin-top:4px">${f.dep}</div>
+          </div>
+          <div style="flex:1;padding:0 6px;text-align:center">
+            <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+              <div style="height:1px;flex:1;background:var(--ember-soft)"></div>
+              <span style="color:var(--ember)">${ICON.plane}</span>
+              <div style="height:1px;flex:1;background:var(--ember-soft)"></div>
+            </div>
+            <div style="font-family:'JetBrains Mono';font-size:10px;color:var(--ink-mute);margin-top:4px;letter-spacing:0.05em">${f.no} · ${f.plane}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:34px;letter-spacing:0.02em">${f.to}</div>
+            <div style="font-family:'JetBrains Mono';font-size:12px;color:var(--ink-mute);margin-top:4px">${f.arr}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.08);font-family:'JetBrains Mono';font-size:11px;color:var(--ink-mute);letter-spacing:0.05em">
+          <span>TERM ${f.term}</span><span style="flex:1"></span><span>${f.plane}</span>
+        </div>
+      </article>
+    `).join('');
+  }
+  if (state.travelSub === 'auto') {
+    return tabs + `
+      <article class="block">
+        <div class="block-head">
+          <div class="block-label"><span class="mark"></span>Huurauto</div>
+        </div>
+        <div class="hotel-name">${RENTAL.provider}</div>
+        <div style="font-family:'JetBrains Mono';font-size:11px;color:var(--ink-mute);margin-top:6px;letter-spacing:0.05em">REF · ${RENTAL.ref}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.08)">
+          <div>
+            <div style="font-family:'Barlow Condensed';font-weight:700;font-size:10px;letter-spacing:0.22em;color:var(--ink-mute);text-transform:uppercase">Ophalen</div>
+            <div style="font-family:'JetBrains Mono';font-size:13px;color:var(--ink);margin-top:4px">${RENTAL.pickup}</div>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed';font-weight:700;font-size:10px;letter-spacing:0.22em;color:var(--ink-mute);text-transform:uppercase">Inleveren</div>
+            <div style="font-family:'JetBrains Mono';font-size:13px;color:var(--ink);margin-top:4px">${RENTAL.dropoff}</div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+  if (state.travelSub === 'hotel') {
+    return tabs + `
+      <article class="block">
+        <div class="block-head">
+          <div class="block-label"><span class="mark"></span>Hotel</div>
+        </div>
+        <div style="height:120px;border-radius:var(--r-md);background:linear-gradient(135deg, #2a1f12, #3a2616);position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--glass-edge)">
+          <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg, transparent 0 12px, rgba(255,255,255,.04) 12px 13px)"></div>
+          <div style="position:absolute;bottom:8px;left:10px;font-family:'JetBrains Mono';font-size:10px;color:rgba(255,255,255,.5);letter-spacing:0.1em">FOTO · HOTEL</div>
+        </div>
+        <div class="hotel-name">${HOTEL.name}</div>
+        <div class="hotel-addr">${HOTEL.addr}</div>
+        <div style="margin-top:10px;font-family:'JetBrains Mono';font-size:11px;color:var(--ember);letter-spacing:0.05em">↪ ${HOTEL.drive}</div>
+      </article>
+    `;
+  }
+  // Nood
+  const emerg = [
+    { k:'112', l:'Algemeen alarm' },
+    { k:'118', l:'Medisch / ambulance' },
+    { k:'115', l:'Brandweer' },
+    { k:'113', l:'Politie' },
+  ];
+  return tabs + `
+    <article class="block" style="padding:14px 14px">
+      <div class="block-head">
+        <div class="block-label"><span class="mark"></span>Noodnummers · Italië</div>
+      </div>
+      ${emerg.map(e => `
+        <div class="emergency-row press">
+          <div class="emergency-num">${e.k}</div>
+          <div style="flex:1;font-size:14px">${e.l}</div>
+          <span style="color:var(--ember)">${ICON.phone}</span>
+        </div>
+      `).join('')}
+    </article>
+  `;
+}
+
+// Calendar
+function renderCal() {
+  return `
+    <article class="block" style="padding:8px 6px">
+      ${SEASON.map(r => {
+        let badgeHTML = '';
+        if (r.current) badgeHTML = '<div class="badge now">NU</div>';
+        else if (r.done && r.winner) badgeHTML = `<div class="badge win">${r.winner.split(' ').slice(-1)[0]}</div>`;
+        else if (r.onsite) badgeHTML = '<div class="badge os">ONSITE</div>';
+        const cls = r.done ? 'done' : (r.current ? 'current' : '');
+        return `
+          <div class="cal-row ${cls}" style="margin:4px 6px">
+            <div class="rno">R${r.r}</div>
+            <div class="flag">${r.code}</div>
+            <div class="info">
+              <div class="co">${r.country}</div>
+              <div class="meta">${r.circuit} · ${r.date}</div>
+            </div>
+            ${badgeHTML}
+          </div>
+        `;
+      }).join('')}
+    </article>
+  `;
+}
+
+// Modal
+function openCrewModal(id) {
+  const p = CREW.find(x => x.id === id);
+  if (!p) return;
+  const mb = $('#modal');
+  mb.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="grabber"></div>
+      <div class="modal-head">
+        <div class="avatar ${p.color}" style="width:56px;height:56px;font-size:18px">${p.ini}</div>
+        <div>
+          <div class="nm">${p.name}</div>
+          <div class="ro" style="display:flex;align-items:center;gap:6px;color:var(--ink-mute);font-size:13px">
+            <span class="dot ${p.color}"></span> ${p.role}
+          </div>
+        </div>
+      </div>
+      <div class="row press">
+        <div class="ic">${ICON.phone}</div>
+        <div style="flex:1"><div class="lbl">Bellen</div><div class="vl">${p.phone}</div></div>
+        <span style="color:var(--ink-faint)">${ICON.chev}</span>
+      </div>
+      <div class="row press">
+        <div class="ic">${ICON.mail}</div>
+        <div style="flex:1"><div class="lbl">E-mail</div><div class="vl">${p.email}</div></div>
+        <span style="color:var(--ink-faint)">${ICON.chev}</span>
+      </div>
+      <div class="row press">
+        <div class="ic">${ICON.whats}</div>
+        <div style="flex:1"><div class="lbl">WhatsApp</div><div class="vl">${p.phone}</div></div>
+        <span style="color:var(--ink-faint)">${ICON.chev}</span>
+      </div>
+    </div>
+  `;
+  mb.classList.add('show');
+}
+function closeModal() { $('#modal').classList.remove('show'); }
+
+// Main render
+function render() {
+  const c = $('#content');
+  let html = '';
+  if (state.tab === 'home')   html = renderHome();
+  if (state.tab === 'schema') html = renderSchema();
+  if (state.tab === 'crew')   html = renderCrew();
+  if (state.tab === 'travel') html = renderTravel();
+  if (state.tab === 'kal')    html = renderCal();
+  c.innerHTML = `<div class="tab-page">${html}</div>`;
+  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
+}
+
+// Events
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { state.tab = tab.dataset.tab; render(); return; }
+  const go = e.target.closest('[data-go]');
+  if (go) { state.tab = go.dataset.go; render(); return; }
+  const crew = e.target.closest('[data-crew]');
+  if (crew) { openCrewModal(crew.dataset.crew); return; }
+  const sub = e.target.closest('[data-sub]');
+  if (sub) { state.schedSub = sub.dataset.sub; render(); return; }
+  const tv = e.target.closest('[data-travel]');
+  if (tv) { state.travelSub = tv.dataset.travel; render(); return; }
+  const dt = e.target.closest('[data-day-toggle]');
+  if (dt) {
+    const i = parseInt(dt.dataset.dayToggle, 10);
+    state.openDay = (state.openDay === i) ? -1 : i;
+    render(); return;
+  }
+  if (e.target.id === 'modal') closeModal();
+});
+
+// Live clock
+function tickClock() {
+  const d = new Date();
+  $('#liveClock').textContent =
+    String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+tickClock(); setInterval(tickClock, 30000);
+
+renderRaceRail();
+render();
+</script>
+</body>
+</html>
